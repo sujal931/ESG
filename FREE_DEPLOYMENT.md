@@ -119,18 +119,29 @@ I have already created the file at `frontend/vercel.json`:
 
 ## 🛠️ Step 4: Run Initial Django Operations
 
-Once both backend and database are fully deployed, run the initial database setup commands directly from the Render console:
+Since Render's **Free Tier** disables interactive web shell access (as shown in your dashboard), you can easily run all database setup commands directly from **your local machine's terminal**! 
 
-1. In your **Render Dashboard**, select your `esg-backend` Web Service.
-2. Click on the **Shell** tab on the left sidebar.
-3. Run the following command to create an administrative username/password for logging in:
+Because I have already configured your local `backend/.env` file to point directly to your cloud Neon database, any commands you run locally will execute directly on your live production database.
+
+### How to set up your database from your local terminal:
+
+1. Open your terminal or Command Prompt on your computer.
+2. Navigate to your backend directory:
+   ```bash
+   cd backend
+   ```
+3. Run the migrations to build your database tables in Neon:
+   ```bash
+   python manage.py migrate
+   ```
+4. Create your administrative superuser to log in:
    ```bash
    python manage.py createsuperuser
    ```
-4. Follow the prompt to enter your username, email, and password.
-5. Run the demo seeder if you wish to pre-populate the dashboard:
+   *(Follow the prompts to enter your secure username, email, and password)*
+5. Pre-populate your database with realistic operational ESG demo records:
    ```bash
    python manage.py seed_demo
    ```
 
-You are now successfully deployed! You can open your Vercel website link, register/log in with your newly created credentials, upload test ESG datasets, and review environmental metrics.
+You are now 100% deployed and set up! Open your Vercel website link, log in with the admin credentials you just created, and explore the platform!
