@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
 import { useTheme } from '../ThemeContext';
@@ -10,6 +10,16 @@ export default function LoginPage() {
   const { login, loading } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
+
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -23,42 +33,44 @@ export default function LoginPage() {
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', backgroundColor: 'var(--bg-page)' }}>
-      {/* Left panel */}
-      <div className="hidden lg:flex" style={{ width: '440px', backgroundColor: 'var(--bg-card)', borderRight: '1px solid var(--border)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '48px 40px' }}>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '48px' }}>
-            <div style={{ width: '32px', height: '32px', borderRadius: '8px', backgroundColor: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <span style={{ color: '#FFFFFF', fontSize: '14px', fontWeight: 700 }}>E</span>
-            </div>
-            <span style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-h)' }}>ESG Platform</span>
-          </div>
-          <h1 style={{ fontSize: '22px', fontWeight: 600, color: 'var(--text-h)', letterSpacing: '-0.02em', lineHeight: '30px', marginBottom: '12px' }}>
-            ESG Data Ingestion<br />& Review Platform
-          </h1>
-          <p style={{ fontSize: '14px', color: 'var(--text-muted)', lineHeight: '22px', maxWidth: '340px' }}>
-            Enterprise-grade pipeline for normalizing, validating, and approving ESG operational data.
-          </p>
-        </div>
-        <div>
-          {[
-            { title: 'Multi-Source Ingestion', desc: 'SAP, Utility, and Travel data' },
-            { title: 'Smart Validation', desc: 'Automated anomaly detection' },
-            { title: 'Audit-Ready Approvals', desc: 'Full traceability and sign-off' },
-          ].map(({ title, desc }) => (
-            <div key={title} style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
-              <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'var(--accent)', flexShrink: 0 }} />
-              <div>
-                <p style={{ fontSize: '13px', fontWeight: 500, color: 'var(--text-h)' }}>{title}</p>
-                <p style={{ fontSize: '12px', color: 'var(--text-dim)' }}>{desc}</p>
+      {/* Left panel (only on desktop/tablet) */}
+      {!isMobile && (
+        <div style={{ width: '440px', backgroundColor: 'var(--bg-card)', borderRight: '1px solid var(--border)', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', padding: '48px 40px', flexShrink: 0 }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '48px' }}>
+              <div style={{ width: '32px', height: '32px', borderRadius: '8px', backgroundColor: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <span style={{ color: '#FFFFFF', fontSize: '14px', fontWeight: 700 }}>E</span>
               </div>
+              <span style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-h)' }}>ESG Platform</span>
             </div>
-          ))}
-          <p style={{ fontSize: '11px', color: 'var(--text-dim)', marginTop: '24px' }}>Scope 1 · Scope 2 · Scope 3 — GHG Protocol Aligned</p>
+            <h1 style={{ fontSize: '22px', fontWeight: 600, color: 'var(--text-h)', letterSpacing: '-0.02em', lineHeight: '30px', marginBottom: '12px' }}>
+              ESG Data Ingestion<br />& Review Platform
+            </h1>
+            <p style={{ fontSize: '14px', color: 'var(--text-muted)', lineHeight: '22px', maxWidth: '340px' }}>
+              Enterprise-grade pipeline for normalizing, validating, and approving ESG operational data.
+            </p>
+          </div>
+          <div>
+            {[
+              { title: 'Multi-Source Ingestion', desc: 'SAP, Utility, and Travel data' },
+              { title: 'Smart Validation', desc: 'Automated anomaly detection' },
+              { title: 'Audit-Ready Approvals', desc: 'Full traceability and sign-off' },
+            ].map(({ title, desc }) => (
+              <div key={title} style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'var(--accent)', flexShrink: 0 }} />
+                <div>
+                  <p style={{ fontSize: '13px', fontWeight: 500, color: 'var(--text-h)' }}>{title}</p>
+                  <p style={{ fontSize: '12px', color: 'var(--text-dim)' }}>{desc}</p>
+                </div>
+              </div>
+            ))}
+            <p style={{ fontSize: '11px', color: 'var(--text-dim)', marginTop: '24px' }}>Scope 1 · Scope 2 · Scope 3 — GHG Protocol Aligned</p>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Right — Form */}
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px', position: 'relative' }}>
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: isMobile ? '32px 16px' : '40px', position: 'relative' }}>
         {/* Theme toggle */}
         <button
           onClick={toggleTheme}
@@ -73,14 +85,16 @@ export default function LoginPage() {
         </button>
 
         <div style={{ width: '100%', maxWidth: '380px' }} className="animate-fade-in">
-          <div className="lg:hidden" style={{ marginBottom: '24px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <div style={{ width: '28px', height: '28px', borderRadius: '8px', backgroundColor: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <span style={{ color: '#FFFFFF', fontSize: '12px', fontWeight: 700 }}>E</span>
+          {isMobile && (
+            <div style={{ marginBottom: '24px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div style={{ width: '28px', height: '28px', borderRadius: '8px', backgroundColor: 'var(--accent)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <span style={{ color: '#FFFFFF', fontSize: '12px', fontWeight: 700 }}>E</span>
+                </div>
+                <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-h)' }}>ESG Platform</span>
               </div>
-              <span style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-h)' }}>ESG Platform</span>
             </div>
-          </div>
+          )}
           <h2 style={{ fontSize: '22px', fontWeight: 600, color: 'var(--text-h)', letterSpacing: '-0.02em', marginBottom: '4px' }}>Welcome back</h2>
           <p style={{ fontSize: '14px', color: 'var(--text-muted)', marginBottom: '28px' }}>Sign in to your account</p>
 
@@ -106,7 +120,7 @@ export default function LoginPage() {
 
           <div style={{ marginTop: '28px', paddingTop: '20px', borderTop: '1px solid var(--border)' }}>
             <p style={{ fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', marginBottom: '12px' }}>Demo Accounts</p>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr', gap: '8px' }}>
               {[
                 { role: 'Admin', user: 'admin', pass: 'admin123!', dot: 'var(--warning)' },
                 { role: 'Analyst', user: 'analyst', pass: 'analyst123!', dot: 'var(--accent)' },
