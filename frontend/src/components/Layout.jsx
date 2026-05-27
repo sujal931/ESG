@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
 import { useTheme } from '../ThemeContext';
@@ -120,7 +121,25 @@ export default function Layout() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const sidebarWidth = sidebarOpen ? 220 : 56;
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Automatically close sidebar on mobile when navigating pages
+  useEffect(() => {
+    if (isMobile && sidebarOpen) {
+      toggleSidebar();
+    }
+  }, [location.pathname, isMobile]);
+
+  const sidebarWidth = 220; // Expanded width on mobile/desktop
+  const collapsedWidth = 56; // Collapsed width on desktop
 
   const handleLogout = () => { logout(); navigate('/login'); };
 
@@ -144,26 +163,45 @@ export default function Layout() {
     cursor: 'pointer', color: 'var(--text-muted)', transition: 'all 0.15s ease',
   };
 
+  // Determine sidebar horizontal position and main margin left based on viewport size
+  const sidebarLeft = isMobile ? (sidebarOpen ? '0px' : '-220px') : '0px';
+  const sidebarWidthActual = isMobile ? '220px' : (sidebarOpen ? `${sidebarWidth}px` : `${collapsedWidth}px`);
+  const mainMarginLeft = isMobile ? '0px' : (sidebarOpen ? `${sidebarWidth}px` : `${collapsedWidth}px`);
+
   return (
     <div style={{ minHeight: '100vh', display: 'flex', backgroundColor: 'var(--bg-page)' }}>
+      {/* Mobile Drawer Overlay Backdrop */}
+      {isMobile && sidebarOpen && (
+        <div
+          onClick={toggleSidebar}
+          className="panel-overlay animate-fade-in"
+          style={{
+            position: 'fixed',
+            top: 0, left: 0, right: 0, bottom: 0,
+            zIndex: 45,
+            cursor: 'pointer',
+          }}
+        />
+      )}
+
       {/* ── Sidebar ─────────────────────────────────────────── */}
       <aside
         style={{
-          width: `${sidebarWidth}px`,
+          width: sidebarWidthActual,
           backgroundColor: 'var(--bg-card)',
           borderRight: '1px solid var(--border)',
-          position: 'fixed', top: 0, left: 0, bottom: 0, zIndex: 50,
+          position: 'fixed', top: 0, left: sidebarLeft, bottom: 0, zIndex: 50,
           display: 'flex', flexDirection: 'column',
-          transition: 'width 0.2s ease', overflow: 'hidden',
+          transition: 'all 0.2s ease', overflow: 'hidden',
         }}
       >
         {/* Logo */}
         <div
           style={{
-            padding: sidebarOpen ? '16px 16px' : '16px 0',
+            padding: (isMobile || sidebarOpen) ? '16px 16px' : '16px 0',
             borderBottom: '1px solid var(--border)',
             display: 'flex', alignItems: 'center', gap: '10px',
-            height: '52px', justifyContent: sidebarOpen ? 'flex-start' : 'center',
+            height: '52px', justifyContent: (isMobile || sidebarOpen) ? 'flex-start' : 'center',
           }}
         >
           <div
@@ -175,40 +213,40 @@ export default function Layout() {
           >
             <span style={{ color: '#FFFFFF', fontSize: '13px', fontWeight: 700 }}>E</span>
           </div>
-          {sidebarOpen && (
+          {(isMobile || sidebarOpen) && (
             <p style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-h)', whiteSpace: 'nowrap' }}>ESG Platform</p>
           )}
         </div>
 
         {/* Navigation */}
-        <nav style={{ flex: 1, padding: sidebarOpen ? '8px 12px' : '8px 8px' }}>
-          {sidebarOpen && (
+        <nav style={{ flex: 1, padding: (isMobile || sidebarOpen) ? '8px 12px' : '8px 8px' }}>
+          {(isMobile || sidebarOpen) && (
             <p style={{ fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', padding: '8px 8px 6px' }}>
               Navigation
             </p>
           )}
           {navItems.map(({ to, label, icon }) => (
-            <NavItem key={to} to={to} label={label} icon={icon} sidebarOpen={sidebarOpen} isActive={isActivePath(to)} />
+            <NavItem key={to} to={to} label={label} icon={icon} sidebarOpen={isMobile || sidebarOpen} isActive={isActivePath(to)} />
           ))}
 
           {/* Admin section */}
           {isAdmin && (
             <>
-              {sidebarOpen && (
+              {(isMobile || sidebarOpen) && (
                 <p style={{ fontSize: '11px', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', padding: '16px 8px 6px' }}>
                   Admin
                 </p>
               )}
-              {!sidebarOpen && <div style={{ height: '1px', backgroundColor: 'var(--border)', margin: '8px 4px' }} />}
+              {!(isMobile || sidebarOpen) && <div style={{ height: '1px', backgroundColor: 'var(--border)', margin: '8px 4px' }} />}
               {adminNavItems.map(({ to, label, icon }) => (
-                <NavItem key={to} to={to} label={label} icon={icon} sidebarOpen={sidebarOpen} isActive={isActivePath(to)} />
+                <NavItem key={to} to={to} label={label} icon={icon} sidebarOpen={isMobile || sidebarOpen} isActive={isActivePath(to)} />
               ))}
             </>
           )}
         </nav>
 
         {/* Org badge */}
-        {sidebarOpen && (
+        {(isMobile || sidebarOpen) && (
           <div style={{ padding: '0 16px', marginBottom: '12px' }}>
             <div style={{
               display: 'inline-flex', alignItems: 'center', gap: '6px',
@@ -224,10 +262,10 @@ export default function Layout() {
 
         {/* User footer */}
         <div style={{
-          padding: sidebarOpen ? '12px 16px' : '12px 8px',
+          padding: (isMobile || sidebarOpen) ? '12px 16px' : '12px 8px',
           borderTop: '1px solid var(--border)',
           display: 'flex', alignItems: 'center', gap: '10px',
-          justifyContent: sidebarOpen ? 'flex-start' : 'center',
+          justifyContent: (isMobile || sidebarOpen) ? 'flex-start' : 'center',
         }}>
           <div style={{
             width: '32px', height: '32px', borderRadius: '50%', backgroundColor: 'var(--accent)',
@@ -236,7 +274,7 @@ export default function Layout() {
           }}>
             {user?.first_name?.[0]}{user?.last_name?.[0]}
           </div>
-          {sidebarOpen && (
+          {(isMobile || sidebarOpen) && (
             <>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <p style={{ fontSize: '13px', fontWeight: 500, color: 'var(--text-h)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -262,31 +300,33 @@ export default function Layout() {
       </aside>
 
       {/* ── Main ──────────────────────────────────────────────── */}
-      <div style={{ flex: 1, marginLeft: `${sidebarWidth}px`, display: 'flex', flexDirection: 'column', minHeight: '100vh', transition: 'margin-left 0.2s ease' }}>
+      <div style={{ flex: 1, marginLeft: mainMarginLeft, display: 'flex', flexDirection: 'column', minHeight: '100vh', transition: 'all 0.2s ease', overflowX: 'hidden' }}>
         {/* Header */}
         <header style={{
           height: '52px', backgroundColor: 'var(--bg-card)',
           borderBottom: '1px solid var(--border)',
           position: 'sticky', top: 0, zIndex: 40,
-          display: 'flex', alignItems: 'center', padding: '0 24px', gap: '12px',
+          display: 'flex', alignItems: 'center', padding: isMobile ? '0 12px' : '0 24px', gap: isMobile ? '8px' : '12px',
         }}>
           {/* Hamburger toggle */}
           <button onClick={toggleSidebar} style={iconBtn} title={sidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'}>
-            {sidebarOpen ? <CloseIcon /> : <MenuIcon />}
+            {(isMobile ? sidebarOpen : sidebarOpen) ? <CloseIcon /> : <MenuIcon />}
           </button>
 
-          <h2 style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-h)' }}>{getPageTitle()}</h2>
+          <h2 style={{ fontSize: '14px', fontWeight: 600, color: 'var(--text-h)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: isMobile ? '120px' : 'none' }}>
+            {getPageTitle()}
+          </h2>
 
-          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: isMobile ? '6px' : '8px' }}>
             {/* Role badge */}
             <div style={{
               display: 'inline-flex', alignItems: 'center', gap: '5px',
-              padding: '4px 10px', backgroundColor: isAdmin ? 'var(--warning-bg)' : 'var(--info-bg)',
+              padding: '4px 8px', backgroundColor: isAdmin ? 'var(--warning-bg)' : 'var(--info-bg)',
               border: `1px solid ${isAdmin ? 'var(--warning-border)' : 'var(--info-border)'}`, borderRadius: '999px',
-              fontSize: '10px', fontWeight: 600, color: isAdmin ? 'var(--warning-text)' : 'var(--info-text)',
+              fontSize: '9px', fontWeight: 600, color: isAdmin ? 'var(--warning-text)' : 'var(--info-text)',
               textTransform: 'uppercase', letterSpacing: '0.04em',
             }}>
-              <span style={{ width: '5px', height: '5px', borderRadius: '50%', backgroundColor: isAdmin ? 'var(--warning)' : 'var(--accent)' }} />
+              <span style={{ width: '4px', height: '4px', borderRadius: '50%', backgroundColor: isAdmin ? 'var(--warning)' : 'var(--accent)' }} />
               {isAdmin ? 'Admin' : 'Analyst'}
             </div>
 
@@ -295,20 +335,22 @@ export default function Layout() {
               {theme === 'light' ? <MoonIcon /> : <SunIcon />}
             </button>
 
-            {/* Online pill */}
-            <div style={{
-              display: 'inline-flex', alignItems: 'center', gap: '6px',
-              padding: '4px 12px', backgroundColor: 'var(--bg-card)',
-              border: '1px solid var(--border)', borderRadius: '999px',
-              fontSize: '11px', fontWeight: 500, color: 'var(--text-muted)',
-            }}>
-              <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'var(--success)' }} />
-              Online
-            </div>
+            {/* Online pill - hidden on mobile to prevent crowding */}
+            {!isMobile && (
+              <div style={{
+                display: 'inline-flex', alignItems: 'center', gap: '6px',
+                padding: '4px 12px', backgroundColor: 'var(--bg-card)',
+                border: '1px solid var(--border)', borderRadius: '999px',
+                fontSize: '11px', fontWeight: 500, color: 'var(--text-muted)',
+              }}>
+                <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: 'var(--success)' }} />
+                Online
+              </div>
+            )}
           </div>
         </header>
 
-        <main style={{ flex: 1, padding: '32px 36px', maxWidth: '1200px', width: '100%' }}>
+        <main style={{ flex: 1, padding: isMobile ? '16px' : '32px 36px', maxWidth: '1200px', width: '100%', margin: '0 auto' }}>
           <Outlet />
         </main>
       </div>

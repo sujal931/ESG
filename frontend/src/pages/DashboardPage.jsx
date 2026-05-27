@@ -37,14 +37,14 @@ export default function DashboardPage() {
         </Link>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px' }}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <StatCard label="Total Records" value={s.total_records || 0} />
         <StatCard label="Pending Review" value={s.by_status?.pending || 0} accent="amber" />
         <StatCard label="Needs Review" value={s.by_status?.needs_review || 0} accent="red" />
         <StatCard label="Approved" value={s.by_status?.approved || 0} accent="green" />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
         {/* By Source */}
         <div style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '20px' }}>
           <SectionHeader>Records by Source</SectionHeader>
@@ -97,7 +97,7 @@ export default function DashboardPage() {
       {/* Pipeline Activity */}
       <div style={{ backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: '12px', padding: '20px', marginBottom: '24px' }}>
         <SectionHeader>Pipeline Activity</SectionHeader>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px' }}>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {[
             { label: 'Total Uploads', value: u.total_uploads || 0 },
             { label: 'Rows Processed', value: u.total_rows_processed || 0 },
@@ -113,7 +113,7 @@ export default function DashboardPage() {
       </div>
 
       <SectionHeader>Quick Actions</SectionHeader>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px' }}>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {[
           { to: '/records?status=needs_review', title: 'Review Flagged', desc: `${s.by_status?.needs_review || 0} records need attention` },
           { to: '/records?status=pending', title: 'Pending Approvals', desc: `${s.by_status?.pending || 0} records awaiting approval` },

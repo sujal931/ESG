@@ -104,7 +104,7 @@ export default function UploadPage() {
         <h1 style={{ fontSize: '22px', fontWeight: 600, color: 'var(--text-h)', letterSpacing: '-0.02em' }}>Upload Center</h1>
         <p style={{ fontSize: '14px', color: 'var(--text-muted)', marginTop: '2px' }}>Upload CSV data from source systems. Files are parsed, normalized, and validated automatically.</p>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {SOURCE_CONFIGS.map((config) => <UploadCard key={config.type} config={config} />)}
       </div>
     </div>
