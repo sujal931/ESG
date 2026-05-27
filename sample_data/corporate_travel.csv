@@ -1,0 +1,19 @@
+traveler_name,category,origin_airport,destination_airport,cabin_class,distance_km,hotel_nights,city,taxi_distance,mode
+John Smith,flight,JFK,LAX,economy,,,,, 
+John Smith,flight,LAX,JFK,business,,,,, 
+Sarah Chen,flight,LHR,JFK,first,,,,,
+Marcus Rivera,flight,JFK,CDG,premium_economy,,,,,
+Emma Wilson,flight,ABC,XYZ,economy,,,,,
+David Kim,flight,SFO,NRT,economy,,,,,
+John Smith,hotel,,,,3,New York,,
+Sarah Chen,hotel,,,,,5,London,,
+Marcus Rivera,hotel,,,,,2,Paris,,
+Emma Wilson,hotel,,,,,,,,
+John Smith,ground transport,,,,,,,15.5,taxi
+Sarah Chen,ground transport,,,,,,,22.0,taxi
+Marcus Rivera,ground transport,,,,,,,8.3,uber
+David Kim,ground transport,,,,,,,,
+John Smith,flight,JFK,LAX,economy,,,,, 
+Alice Park,flight,DXB,BOM,business,,,,,
+Tom Baker,flight,ORD,SFO,economy,1500,,,,
+Sarah Chen,flight,LHR,SIN,economy,,,,,
